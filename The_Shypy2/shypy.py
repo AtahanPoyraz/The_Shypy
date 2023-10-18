@@ -91,7 +91,7 @@ class Shypy:
             if self.done:
                 break
 
-            sys.stdout.write(f'\r[{colors["CYAN"]} {c} {colors["ZERO"]}]|[{datetime.now().strftime("%Y-%M-%D %H:%M:%S")}]|[Being Checked.. {checked_modules}%]')
+            sys.stdout.write(f'\r[{colors["CYAN"]} {c} {colors["ZERO"]}]|[{colors["YELLOW"]}{datetime.now().strftime("%Y-%M-%D %H:%M:%S")}{colors["ZERO"]}]|[Being Checked.. {checked_modules}%]')
             sys.stdout.flush()
             time.sleep(0.1)
             checked_modules += 1
