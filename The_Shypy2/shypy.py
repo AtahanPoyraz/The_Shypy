@@ -52,6 +52,8 @@ class Shypy:
                         self.done = True
                         print(f'{colors["YELLOW"]}[!]{colors["ZERO"]} Error: {str(e)}')
                         sys.exit(0)
+                        
+                self.checkin()
 
             else:
                 self.done = True
