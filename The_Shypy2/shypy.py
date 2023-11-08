@@ -1,15 +1,14 @@
-import platform
-import os
-import sys
-from datetime import datetime
-import itertools
-import subprocess
-import threading
+from multiprocessing import Process
 import time
+import subprocess
+import os
+from itertools import cycle
+import sys
+import platform
 
 OS = platform.system().lower()
 
-colors = {
+COLOR = {
     'BLACK': '\033[0;30m',
     'RED': '\033[0;31m',
     'GREEN': '\033[0;32m',
@@ -18,102 +17,75 @@ colors = {
     'MAGENTA': '\033[0;35m',
     'CYAN': '\033[0;36m',
     'WHITE': '\033[0;37m',
-    'ZERO': '\033[0m'
+    'RESET': '\033[0m'
+}
+
+MODULES = {
+    "pyarmor": "pyarmor",
+    "mouse": "mouse",
+    "mouseinfo": "mouseinfo",
+    "pyautogui": "pyautogui",
+    "scapy": "scapy",
+    "pynput": "pynput",
+    "cryptography": "cryptography",
+    "simplejson": "simplejson",
 }
 
 class Shypy:
     def __init__(self):
-        self.done = False
-        self.required_modules = [
-            'pyarmor', 'mouse', 'mouseinfo', 'pyautogui', 'scapy', 'pynput',
-            'cryptography', 'simplejson', 'cv2',
-        ]
-        self.required_frameworks = [
-            "beef-xss"
-        ]
+        self.modules_inst = list(MODULES.keys())
+        self.modules_impt = list(MODULES.values())
 
-    def check_dependencies(self):
-        missing_modules = [module for module in self.required_modules if not self.module_exists(module)]
-
-        if missing_modules:
-            self.done = True
-            self.clear()
-            print(f'{colors["YELLOW"]}[!]{colors["ZERO"]} One or more modules not found: {", ".join(missing_modules)}')
-            print(f'{colors["BLUE"]}[?]{colors["ZERO"]} Do you want to install the requirements (Y/N): \n')
-
-            ans = input(f"{colors['RED']}[ShyPy] => {colors['ZERO']} ").lower()
-
-            if ans == "y":
-                for module in missing_modules:
-                    try:
-                        subprocess.call(["pip", "install", f"{module}"])
-
-                    except Exception as e:
-                        self.done = True
-                        print(f'{colors["YELLOW"]}[!]{colors["ZERO"]} Error: {str(e)}')
-                        sys.exit(0)
-                        
-                self.checkin()
-
-            else:
-                self.done = True
-                self.clear()
-                print(f"{colors['RED']}[X]{colors['ZERO']} Shypy will not run if the requirements are not installed..")
-                sys.exit(0)
-        else:
-            self.done = True
-            self.clear()
-            print(f'{colors["GREEN"]}[✓]{colors["ZERO"]} Modules and requirements ready to use.\n')
-            count = 0
-            for s in itertools.cycle(['𓃉𓃉𓃉', '𓃉𓃉∘', '𓃉∘°', '∘°∘', '°∘𓃉', '∘𓃉𓃉', '𓃉𓃉𓃉', '𓃉𓃉∘', '𓃉∘°', '∘°∘', '°∘𓃉', '∘𓃉𓃉']):
-                sys.stdout.write(f'\rStarting {s}')
-                sys.stdout.flush()
-                time.sleep(0.1)
-                count += 1
-
-                if count == 45:
-                    break
-
-            self.startup()
+    def download_modules(self, modules_):
+        try:
+            for module in modules_:
+                subprocess.run(["pip", "install", module], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["pip", "install", "opencv-python"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"\r{COLOR['GREEN']}[+]{COLOR['RESET']} Download completed.")
+        except Exception as e:
+            print(f"{COLOR['YELLOW']}[!]{COLOR['RESET']} Error while downloading modules: {str(e)}")
 
     def module_exists(self, module_name):
         try:
             __import__(module_name)
             return True
-        
         except ImportError:
             return False
 
-    def check(self):
-        checked_modules = 0
-
-        for c in itertools.cycle(["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]):
-            if self.done:
-                break
-
-            sys.stdout.write(f'\r[{colors["CYAN"]} {c} {colors["ZERO"]}]|[{colors["YELLOW"]}{datetime.now().strftime("%Y-%M-%D %H:%M:%S")}{colors["ZERO"]}]|[Being Checked.. {checked_modules}%]')
-            sys.stdout.flush()
-            time.sleep(0.1)
-            checked_modules += 1
-
-        sys.stdout.flush()
-
     def checkin(self):
-        self.clear()
-        try:
-            t = threading.Thread(target=self.check)
-            t.start()
-            time.sleep(9.5)
-            self.check_dependencies()
+        missing_modules = []
+        for module in self.modules_impt:
+            if not self.module_exists(module):
+                missing_modules.append(module)
 
-        except KeyboardInterrupt:
-            self.done = True
-            print(f'\n{colors["YELLOW"]}[!]{colors["ZERO"]} Process Terminated..')
+        if missing_modules:
+            print(f"{COLOR['YELLOW']}[!]{COLOR['RESET']} The following modules are missing: {', '.join(missing_modules)}")
+            ans = input(f"{COLOR['MAGENTA']}[?]{COLOR['RESET']} Do you want to install these modules? (Y/N): ").lower()
+            if ans == "y":
+                p1 = Process(target=self.download_modules, args=(missing_modules,))
+                p2 = Process(target=self.loader)
+
+                p1.start()
+                p2.start()
+
+                p1.join()
+                p2.terminate()
+            else:
+                print(f"{COLOR['RED']}[x]{COLOR['RESET']} You need to install the required modules to continue.")
+        else:
+            print(f"{COLOR['GREEN']}[+]{COLOR['RESET']} All required modules are already installed.")
+            self.startup()
+
+    def loader(self):
+        for c in cycle(["⢎⡰", "⢎⡡", "⢎⡑", "⢎⠱", "⠎⡱", "⢊⡱", "⢌⡱", "⢆⡱"]):
+            sys.stdout.write(f'\rDownloading{COLOR["CYAN"]} {c} {COLOR["RESET"]}\t')
+            sys.stdout.flush()
+            time.sleep(0.07)
 
     def startup(self):
         try:
             self.clear()
-            print(f"""{colors["RED"]}      
+            print(f"""{COLOR["RED"]}      
 ████████████████████████████████████████████████████████████████████████████╗
 ╚══██╔══════════════════════════════════════════════════════════════════════╝
    ██║  ██╗  ██╗  ███████╗     ██████╗  ██╗  ██╗  ██╗  ██╗  ██████═╗ ██╗  ██╗ 
@@ -135,12 +107,12 @@ class Shypy:
         
         except (KeyboardInterrupt):
             self.clear()
-            print(f'Signed Out Of The Shypy v2{colors["ZERO"]}')
+            print(f'Signed Out Of The Shypy v2{COLOR["RESET"]}')
 
     def program_menu(self):
         try:
             self.clear()
-            print(f"""{colors['ZERO']}
+            print(f"""{COLOR['RESET']}
             ╔════════════════════════╦══════════════════════╦════════════════════════╗
             ║* Version  :    V2     *║ Welcome To The ShyPy ║*                      *║
             ╠════════════════════════╩═════════╦════════════╩════════════════════════╣
@@ -159,7 +131,7 @@ class Shypy:
             ║*                   *║ Developed by Atahan Poyraz ║*                   *║
             ╚═════════════════════╩════════════════════════════╩═════════════════════╝\n""")
         
-            ans = input(f"{colors['RED']}[ShyPy] =>{colors['ZERO']} ").lower()
+            ans = input(f"{COLOR['RED']}[ShyPy] =>{COLOR['RESET']} ").lower()
 
             if ans == "use 1" or ans == "use keylogger generator":
                 from Modules.Keylogger_Generator.Keylogger_Generator import Generator
@@ -193,24 +165,23 @@ class Shypy:
 
             elif ans == "exit":
                 self.clear()
-                print(f'Signed Out Of The Shypy v2{colors["ZERO"]}')
+                print(f'Signed Out Of The Shypy v2{COLOR["ZERO"]}')
 
             else:
-                print(f'{colors["YELLOW"]}[!]{colors["ZERO"]} Invalid Option')
+                print(f'{COLOR["YELLOW"]}[!]{COLOR["RESET"]} Invalid Option')
                 time.sleep(0.5)
                 self.program_menu()
 
         except (KeyboardInterrupt):
             self.clear()
-            print(f'Signed Out Of The Shypy v2{colors["ZERO"]}')
+            print(f'Signed Out Of The Shypy v2{COLOR["RESET"]}')
 
     def clear(self):
         if OS == "windows":
             os.system("cls")
-
         else:
             os.system("clear")
 
 if __name__ == "__main__":
-    shypy = Shypy()
-    shypy.checkin()
+    s = Shypy()
+    s.checkin()
