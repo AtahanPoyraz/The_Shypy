@@ -73,10 +73,10 @@ class Camera_Recorder():
         self.dist_folder = os.path.abspath(os.path.join(exe_loc, os.pardir))
         self.clear()
         if OS == "windows":
-            print(f"{colors['YELLOW']}[!]{colors['ZERO']} Keylogger Was Created On this Location: {self.dist_folder}\dist\{exe_location}")    
+            print(f"{colors['YELLOW']}[!]{colors['ZERO']} Recorder Was Created On this Location: {self.dist_folder}\dist\{exe_location}")    
 
         else:
-            print(f"{colors['YELLOW']}[!]{colors['ZERO']} Keylogger Was Created On this Location: {self.dist_folder}/dist/{exe_location}")
+            print(f"{colors['YELLOW']}[!]{colors['ZERO']} Recorder Was Created On this Location: {self.dist_folder}/dist/{exe_location}")
 
     def start(self):
         self.clear()
